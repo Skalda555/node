@@ -70,7 +70,7 @@ type connectionRequest struct {
 }
 
 // swagger:model ConnectionStatusDTO
-type statusResponse struct {
+type connectionResponse struct {
 	// example: Connected
 	Status string `json:"status"`
 
@@ -140,7 +140,7 @@ func NewConnectionEndpoint(manager connection.Manager, ipResolver ip.Resolver, s
 //     schema:
 //       "$ref": "#/definitions/ErrorMessageDTO"
 func (ce *ConnectionEndpoint) Status(resp http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
-	statusResponse := toStatusResponse(ce.manager.Status())
+	statusResponse := toConnectionResponse(ce.manager.Status())
 	utils.WriteAsJSON(statusResponse, resp)
 }
 
@@ -343,18 +343,18 @@ func getConnectOptions(cr *connectionRequest) connection.ConnectParams {
 }
 
 func validateConnectionRequest(cr *connectionRequest) *validation.FieldErrorMap {
-	errors := validation.NewErrorMap()
+	errs := validation.NewErrorMap()
 	if len(cr.ConsumerID) == 0 {
-		errors.ForField("consumerId").AddError("required", "Field is required")
+		errs.ForField("consumerId").AddError("required", "Field is required")
 	}
 	if len(cr.ProviderID) == 0 {
-		errors.ForField("providerId").AddError("required", "Field is required")
+		errs.ForField("providerId").AddError("required", "Field is required")
 	}
-	return errors
+	return errs
 }
 
-func toStatusResponse(status connection.ConnectionStatus) statusResponse {
-	return statusResponse{
+func toConnectionResponse(status connection.ConnectionStatus) connectionResponse {
+	return connectionResponse{
 		Status:    string(status.State),
 		SessionID: string(status.SessionID),
 	}
