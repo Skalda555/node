@@ -28,7 +28,6 @@ import (
 	promise_noop "github.com/mysteriumnetwork/node/core/promise/methods/noop"
 	"github.com/mysteriumnetwork/node/core/service"
 	"github.com/mysteriumnetwork/node/identity"
-	identity_selector "github.com/mysteriumnetwork/node/identity/selector"
 	"github.com/mysteriumnetwork/node/market"
 	"github.com/mysteriumnetwork/node/market/proposals/registry"
 	"github.com/mysteriumnetwork/node/nat"
@@ -104,13 +103,6 @@ func (di *Dependencies) bootstrapServiceNoop(nodeOptions node.Options) {
 
 // bootstrapServiceComponents initiates ServiceManager dependency
 func (di *Dependencies) bootstrapServiceComponents(nodeOptions node.Options) {
-	identityHandler := identity_selector.NewHandler(
-		di.IdentityManager,
-		di.MysteriumAPI,
-		identity.NewIdentityCache(nodeOptions.Directories.Keystore, "remember.json"),
-		di.SignerFactory,
-	)
-
 	di.NATService = nat.NewService()
 	if err := di.NATService.Enable(); err != nil {
 		log.Warn(logPrefix, "Failed to enable NAT forwarding: ", err)
@@ -142,7 +134,6 @@ func (di *Dependencies) bootstrapServiceComponents(nodeOptions node.Options) {
 	}
 
 	di.ServiceManager = service.NewManager(
-		identityHandler,
 		di.ServiceRegistry.Create,
 		newDialogWaiter,
 		newDialogHandler,
