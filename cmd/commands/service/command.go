@@ -25,6 +25,7 @@ import (
 	"github.com/mysteriumnetwork/node/cmd"
 	"github.com/mysteriumnetwork/node/cmd/commands/license"
 	"github.com/mysteriumnetwork/node/core/service"
+	"github.com/mysteriumnetwork/node/events"
 	"github.com/mysteriumnetwork/node/metadata"
 	service_noop "github.com/mysteriumnetwork/node/services/noop"
 	service_openvpn "github.com/mysteriumnetwork/node/services/openvpn"
@@ -99,6 +100,8 @@ func runServices(ctx *cli.Context, di *cmd.Dependencies, licenseCommandName stri
 	}
 
 	go func() { errorChannel <- di.Node.Wait() }()
+
+	di.EventsSender.SendStartupEvent(events.RoleProvider, metadata.VersionAsString())
 
 	for _, serviceType := range serviceTypes {
 		options, err := parseFlagsByServiceType(ctx, serviceType)
